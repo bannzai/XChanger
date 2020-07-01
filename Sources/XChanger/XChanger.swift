@@ -1,59 +1,65 @@
 import Foundation
 
+internal func defaultCanInit(with request: URLRequest) -> Bool { true }
+internal func defaultCanonicalRequest(for request: URLRequest) -> URLRequest { request }
+internal func defaultRequestIsCacheEquivalent(a: URLRequest, b: URLRequest) -> Bool { false }
+
 public var defaultCachedStoragePolicy: URLCache.StoragePolicy = URLCache.StoragePolicy.allowed
 public func addExchangeURLXChanger(_ handlers: XChanger...) {
     Pool.shared.pool.append(contentsOf: handlers)
 }
 
-public class XChangeURLProtocol: URLProtocol {
-    public static func register() {
-        URLProtocol.registerClass(XChangeURLProtocol.self)
+public struct XChanger {
+    public struct Request {
+        internal let canInit: ((URLRequest) -> Bool)
+        internal let canonicalRequest: ((URLRequest) -> URLRequest)
+        internal let requestIsCacheEquivalent: ((URLRequest, URLRequest) -> Bool)
+        
+        public init(
+            canInit: ((URLRequest) -> Bool)? = nil,
+            canonicalRequest: ((URLRequest) -> URLRequest)? = nil,
+            requestIsCacheEquivalent: ((URLRequest, URLRequest) -> Bool)? = nil
+        ) {
+            self.canInit = canInit ?? defaultCanInit(with:)
+            self.canonicalRequest = canonicalRequest ?? defaultCanonicalRequest(for:)
+            self.requestIsCacheEquivalent = requestIsCacheEquivalent ?? defaultRequestIsCacheEquivalent(a:b:)
+        }
     }
-    public static func unregister() {
-        URLProtocol.unregisterClass(XChangeURLProtocol.self)
+    public struct Response {
+        public enum ErrorType: Swift.Error {
+            case client(Error)
+            case server(Error, URLResponse)
+        }
+        
+        internal let result: Result<(Data, URLResponse), ErrorType>
+        internal let cachedStoragePolicty: URLCache.StoragePolicy
+        public init(success: (Data, URLResponse), cachedStoragePolicty: URLCache.StoragePolicy = defaultCachedStoragePolicy) {
+            self.result = .success(success)
+            self.cachedStoragePolicty = cachedStoragePolicty
+        }
+        public init(error: ErrorType, cachedStoragePolicty: URLCache.StoragePolicy = defaultCachedStoragePolicy) {
+            self.result = .failure(error)
+            self.cachedStoragePolicty = cachedStoragePolicty
+        }
+        public init(clientError error: Error, cachedStoragePolicty: URLCache.StoragePolicy = defaultCachedStoragePolicy) {
+            self.result = .failure(.client(error))
+            self.cachedStoragePolicty = cachedStoragePolicty
+        }
+        public init(serverError error: (Error, URLResponse), cachedStoragePolicty: URLCache.StoragePolicy = defaultCachedStoragePolicy) {
+            self.result = .failure(.server(error.0, error.1))
+            self.cachedStoragePolicty = cachedStoragePolicty
+        }
+        public init(result: Result<(Data, URLResponse), ErrorType>, cachedStoragePolicty: URLCache.StoragePolicy = defaultCachedStoragePolicy) {
+            self.result = result
+            self.cachedStoragePolicty = cachedStoragePolicty
+        }
     }
     
-    public override class func canInit(with request: URLRequest) -> Bool {
-        handler(for: request)?.request.canInit(request) ?? defaultCanInit(with: request)
-    }
-    
-    public override class func canonicalRequest(for request: URLRequest) -> URLRequest {
-        handler(for: request)?.request.canonicalRequest(request) ?? defaultCanonicalRequest(for: request)
-    }
-    
-    public override class func requestIsCacheEquivalent(_ a: URLRequest, to b: URLRequest) -> Bool {
-        if let handler = handler(for: a) {
-            return handler.request.requestIsCacheEquivalent(a, b)
-        }
-        if let handler = handler(for: b) {
-            return handler.request.requestIsCacheEquivalent(a, b)
-        }
-        return defaultRequestIsCacheEquivalent(a: a, b: b)
-    }
-    
-    public override func startLoading() {
-        guard let handler = XChangeURLProtocol.handler(for: request) else {
-            fatalError("Unexpected condition about canInit == true but this handler is not exists")
-        }
-        switch handler.response.result {
-        case .success(let response):
-            client?.urlProtocol(self, didReceive: response.1, cacheStoragePolicy: handler.response.cachedStoragePolicty)
-            client?.urlProtocol(self, didLoad: response.0)
-        case .failure(let error):
-            switch error {
-            case .client(let error):
-                client?.urlProtocol(self, didFailWithError: error)
-            case .server(let error, let response):
-                client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: handler.response.cachedStoragePolicty)
-                client?.urlProtocol(self, didFailWithError: error)
-            }
-        }
+    public let request: Request
+    public let response: Response
+    public init(request: Request, response: Response) {
+        self.request = request
+        self.response = response
     }
 }
 
-// MARK: - Internal
-extension XChangeURLProtocol {
-    class internal func handler(for request: URLRequest) -> XChanger? {
-        Pool.shared.extract(request: request)
-    }
-}
