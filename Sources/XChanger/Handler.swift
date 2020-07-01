@@ -4,7 +4,7 @@ internal func defaultCanInit(with request: URLRequest) -> Bool { true }
 internal func defaultCanonicalRequest(for request: URLRequest) -> URLRequest { request }
 internal func defaultRequestIsCacheEquivalent(a: URLRequest, b: URLRequest) -> Bool { false }
 
-public struct Handler {
+public struct XChanger {
     public struct Request {
         internal let canInit: ((URLRequest) -> Bool)
         internal let canonicalRequest: ((URLRequest) -> URLRequest)

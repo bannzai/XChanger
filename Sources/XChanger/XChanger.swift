@@ -1,7 +1,7 @@
 import Foundation
 
 public var defaultCachedStoragePolicy: URLCache.StoragePolicy = URLCache.StoragePolicy.allowed
-public func addExchangeURLHandler(_ handlers: Handler...) {
+public func addExchangeURLXChanger(_ handlers: XChanger...) {
     Pool.shared.pool.append(contentsOf: handlers)
 }
 
@@ -53,7 +53,7 @@ public class XChangeURLProtocol: URLProtocol {
 
 // MARK: - Internal
 extension XChangeURLProtocol {
-    class internal func handler(for request: URLRequest) -> Handler? {
+    class internal func handler(for request: URLRequest) -> XChanger? {
         Pool.shared.extract(request: request)
     }
 }
