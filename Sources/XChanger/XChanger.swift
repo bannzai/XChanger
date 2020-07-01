@@ -1,58 +1,32 @@
 import Foundation
+import ObjectiveC
 
-internal func defaultCanInit(with request: URLRequest) -> Bool { true }
-internal func defaultCanonicalRequest(for request: URLRequest) -> URLRequest { request }
-internal func defaultRequestIsCacheEquivalent(a: URLRequest, b: URLRequest) -> Bool { false }
-
-public var defaultCachedStoragePolicy: URLCache.StoragePolicy = URLCache.StoragePolicy.allowed
 public func addExchangeURLXChanger(_ handlers: XChanger...) {
     Pool.shared.pool.append(contentsOf: handlers)
 }
 
 public struct XChanger {
-    public struct Request {
-        internal let canInit: ((URLRequest) -> Bool)
-        internal let canonicalRequest: ((URLRequest) -> URLRequest)
-        internal let requestIsCacheEquivalent: ((URLRequest, URLRequest) -> Bool)
-        
-        public init(
-            canInit: ((URLRequest) -> Bool)? = nil,
-            canonicalRequest: ((URLRequest) -> URLRequest)? = nil,
-            requestIsCacheEquivalent: ((URLRequest, URLRequest) -> Bool)? = nil
-        ) {
-            self.canInit = canInit ?? defaultCanInit(with:)
-            self.canonicalRequest = canonicalRequest ?? defaultCanonicalRequest(for:)
-            self.requestIsCacheEquivalent = requestIsCacheEquivalent ?? defaultRequestIsCacheEquivalent(a:b:)
+    public static func exchange() {
+        URLProtocol.registerClass(XChangeURLProtocol.self)
+
+        guard let originalMethod = class_getClassMethod(URLSessionConfiguration.self, #selector(getter: URLSessionConfiguration.default)) else {
+            fatalError("Unexpected pattern for get method implementation of URLSessionConfiguration.default in exchange")
         }
+        guard let swizzledMethod = class_getClassMethod(URLSessionConfiguration.self, #selector(getter: URLSessionConfiguration.exchangerConfiguration)) else {
+            fatalError("Unexpected pattern for get method implementation of URLSessionConfiguration.exchangerConfiguration in exchange")
+        }
+        method_exchangeImplementations(originalMethod, swizzledMethod)
     }
-    public struct Response {
-        public enum ErrorType: Swift.Error {
-            case client(Error)
-            case server(Error, URLResponse)
-        }
+    public static func reverse() {
+        URLProtocol.unregisterClass(XChangeURLProtocol.self)
         
-        internal let result: Result<(Data, URLResponse), ErrorType>
-        internal let cachedStoragePolicty: URLCache.StoragePolicy
-        public init(success: (Data, URLResponse), cachedStoragePolicty: URLCache.StoragePolicy = defaultCachedStoragePolicy) {
-            self.result = .success(success)
-            self.cachedStoragePolicty = cachedStoragePolicty
+        guard let originalMethod = class_getClassMethod(URLSessionConfiguration.self, #selector(getter: URLSessionConfiguration.exchangerConfiguration)) else {
+            fatalError("Unexpected pattern for get method implementation of URLSessionConfiguration.exchangerConfiguration in reverse")
         }
-        public init(error: ErrorType, cachedStoragePolicty: URLCache.StoragePolicy = defaultCachedStoragePolicy) {
-            self.result = .failure(error)
-            self.cachedStoragePolicty = cachedStoragePolicty
+        guard let swizzledMethod = class_getClassMethod(URLSessionConfiguration.self, #selector(getter: URLSessionConfiguration.default)) else {
+            fatalError("Unexpected pattern for get method implementation of URLSessionConfiguration.default in reverse")
         }
-        public init(clientError error: Error, cachedStoragePolicty: URLCache.StoragePolicy = defaultCachedStoragePolicy) {
-            self.result = .failure(.client(error))
-            self.cachedStoragePolicty = cachedStoragePolicty
-        }
-        public init(serverError error: (Error, URLResponse), cachedStoragePolicty: URLCache.StoragePolicy = defaultCachedStoragePolicy) {
-            self.result = .failure(.server(error.0, error.1))
-            self.cachedStoragePolicty = cachedStoragePolicty
-        }
-        public init(result: Result<(Data, URLResponse), ErrorType>, cachedStoragePolicty: URLCache.StoragePolicy = defaultCachedStoragePolicy) {
-            self.result = result
-            self.cachedStoragePolicty = cachedStoragePolicty
-        }
+        method_exchangeImplementations(originalMethod, swizzledMethod)
     }
     
     public let request: Request
@@ -63,3 +37,10 @@ public struct XChanger {
     }
 }
 
+extension URLSessionConfiguration {
+    @objc class var exchangerConfiguration: URLSessionConfiguration {
+        let config = self.exchangerConfiguration
+        config.protocolClasses?.insert(XChangeURLProtocol.self, at: 0)
+        return config
+    }
+}
