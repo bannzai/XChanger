@@ -40,7 +40,8 @@ public class XChanger {
 }
 
 extension XChanger: Builder {
-    public func request(http request: Request) -> HTTPResponseBuilder {
+    public func request(url: URLConvertible, http request: Request) -> HTTPResponseBuilder {
+        self.url = url.url
         self.request = request
         return self
     }
@@ -53,9 +54,9 @@ extension XChanger: Builder {
     public func response(
         data: Data,
         statusCode: Int,
-        httpVersion: String? = nil,
-        headers: [String: String]? = nil,
-        cacheStoragePolicy: URLCache.StoragePolicy = defaultCacheStoragePolicy
+        httpVersion: String?,
+        headers: [String: String]?,
+        cacheStoragePolicy: URLCache.StoragePolicy
     ) -> XChanger {
         let httpURLResponse = HTTPURLResponse(
             url: url,
