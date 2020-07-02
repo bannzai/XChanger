@@ -25,7 +25,7 @@ final class XChangerTests: XCTestCase {
             let session = URLSession(configuration: URLSessionConfiguration.default)
             session.dataTask(with: request) { data, response, error in
                 guard let httpResponse = response as? HTTPURLResponse else {
-                    fatalError()
+                    return XCTFail("Unexpected response type of HTTPURLResponse")
                 }
                 XCTAssertEqual(httpResponse.statusCode, 200)
                 
