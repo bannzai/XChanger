@@ -24,6 +24,9 @@ internal class XChangeURLProtocol: URLProtocol {
         guard let handler = XChangeURLProtocol.handler(for: request) else {
             fatalError("Unexpected condition about canInit == true but this handler is not exists")
         }
+        defer {
+            client?.urlProtocolDidFinishLoading(self)
+        }
         switch handler.response.result {
         case .success(let response):
             client?.urlProtocol(self, didReceive: response.1, cacheStoragePolicy: handler.response.cacheStoragePolicty)
