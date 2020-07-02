@@ -41,6 +41,10 @@ internal class XChangeURLProtocol: URLProtocol {
             }
         }
     }
+    
+    override func stopLoading() {
+        // None
+    }
 }
 
 // MARK: - Internal
