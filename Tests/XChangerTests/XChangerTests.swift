@@ -1,15 +1,35 @@
 import XCTest
 @testable import XChanger
 
+struct Coder: Codable, Equatable {
+    let id: Int
+    let name: String
+}
 final class XChangerTests: XCTestCase {
     func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-        XCTAssertEqual(XChanger().text, "Hello, World!")
-    }
+        XChanger.register()
+        defer { XChanger.unregister() }
 
-    static var allTests = [
-        ("testExample", testExample),
-    ]
+        let expect = expectation(description: #function)
+        let json = try! JSONEncoder().encode(Coder(id: 10, name: "bannzai"))
+        XChanger.add(
+            XChanger.exchange().request(url: "/").response(data: json, statusCode: 200)
+        )
+        
+        let request = URLRequest(url: URL(string: "/")!)
+        let session = URLSession(configuration: URLSessionConfiguration.default)
+        session.dataTask(with: request) { data, response, error in
+            guard let httpResponse = response as? HTTPURLResponse else {
+                fatalError()
+            }
+            XCTAssertEqual(httpResponse.statusCode, 200)
+
+            let decoded = try! JSONDecoder().decode(Coder.self, from: data!)
+            XCTAssertEqual(decoded, Coder(id: 10, name: "bannzai"))
+   
+            expect.fulfill()
+        }.resume()
+        
+        wait(for: [expect], timeout: 1)
+    }
 }
