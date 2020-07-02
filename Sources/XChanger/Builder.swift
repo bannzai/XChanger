@@ -10,7 +10,7 @@ extension RequestBuilder {
     }
 }
 
-public protocol HTTPResponseBuilder {
+public protocol HTTPResponseBuilder: ResponseErrorBuilder {
     func response(response: HTTPResponse) -> XChanger
     func response(data: Data, statusCode: Int, httpVersion: String?, headers: [String: String]?, cacheStoragePolicy: URLCache.StoragePolicy) -> XChanger
 }
