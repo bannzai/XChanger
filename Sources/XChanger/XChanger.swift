@@ -69,7 +69,7 @@ extension XChanger: Builder {
         return self
     }
     
-    public func response(error: ResponseErrorType) -> XChanger {
+    public func response(error: ResponseError) -> XChanger {
         self.response = HTTPResponse(error: error)
         return self
     }

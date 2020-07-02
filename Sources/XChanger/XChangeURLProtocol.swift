@@ -32,13 +32,10 @@ internal class XChangeURLProtocol: URLProtocol {
             client?.urlProtocol(self, didReceive: response.1, cacheStoragePolicy: handler.response.cacheStoragePolicty)
             client?.urlProtocol(self, didLoad: response.0)
         case .failure(let error):
-            switch error {
-            case .client(let error):
-                client?.urlProtocol(self, didFailWithError: error)
-            case .server(let error, let response):
+            if let response = error.response {
                 client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: handler.response.cacheStoragePolicty)
-                client?.urlProtocol(self, didFailWithError: error)
             }
+            client?.urlProtocol(self, didFailWithError: error.error)
         }
     }
     

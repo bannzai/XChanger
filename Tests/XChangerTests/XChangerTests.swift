@@ -37,13 +37,13 @@ final class XChangerTests: XCTestCase {
             
             wait(for: [expect], timeout: 1)
         }
-        XCTContext.runActivity(named: "client error reponse pattern") { (_) in
+        XCTContext.runActivity(named: "Failure reponse pattern") { (_) in
             XChanger.register()
             defer { XChanger.unregister() }
             
             let expect = expectation(description: #function)
             XChanger.add(
-                XChanger.exchange().request(url: "/").response(error: .client(MyError()))
+                XChanger.exchange().request(url: "/").response(error: ResponseError(error: MyError()))
             )
             
             let request = URLRequest(url: URL(string: "/")!)
