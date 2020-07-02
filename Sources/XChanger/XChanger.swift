@@ -28,10 +28,8 @@ public class XChanger {
         Pool.shared.pool.append(contentsOf: handlers)
     }
     
-    public static func `for`(url: URLConvertible) -> RequestBuilder {
-        let xchanger = XChanger()
-        xchanger.url = url.url
-        return xchanger
+    public static func exchange() -> RequestBuilder {
+        XChanger()
     }
     
     internal var url: URL!
