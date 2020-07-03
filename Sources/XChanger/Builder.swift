@@ -6,11 +6,11 @@ public protocol EnableBuilder {
 }
 
 public protocol RequestBuilder: EnableBuilder {
-    func request(url: URLConvertible, http request: Request) -> HTTPResponseBuilder
+    func request(url: URLConvertible, http request: HTTPRequest) -> HTTPResponseBuilder
 }
 
 extension RequestBuilder {
-    public func request(url: URLConvertible, http request: Request = .init()) -> HTTPResponseBuilder {
+    public func request(url: URLConvertible, http request: HTTPRequest = .init()) -> HTTPResponseBuilder {
         self.request(url: url, http: request)
     }
 }

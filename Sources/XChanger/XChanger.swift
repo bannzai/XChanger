@@ -30,7 +30,7 @@ public class XChanger {
     }
     
     internal var url: URL!
-    internal var request: Request!
+    internal var request: HTTPRequest!
     internal var response: HTTPResponse!
     
     internal var urlRequest: URLRequest {
@@ -41,7 +41,7 @@ public class XChanger {
 }
 
 extension XChanger: Builder {
-    public func request(url: URLConvertible, http request: Request) -> HTTPResponseBuilder {
+    public func request(url: URLConvertible, http request: HTTPRequest) -> HTTPResponseBuilder {
         self.url = url.url
         self.request = request
         return self

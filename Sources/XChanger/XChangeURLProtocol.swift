@@ -3,19 +3,19 @@ import Foundation
 internal class XChangeURLProtocol: URLProtocol {
 
     internal override class func canInit(with request: URLRequest) -> Bool {
-        handler(for: request)?.request.canInit(request) ?? defaultCanInit(with: request)
+        handler(for: request)?.request.filter.canInit(request) ?? defaultCanInit(with: request)
     }
     
     internal override class func canonicalRequest(for request: URLRequest) -> URLRequest {
-        handler(for: request)?.request.canonicalRequest(request) ?? defaultCanonicalRequest(for: request)
+        handler(for: request)?.request.filter.canonicalRequest(request) ?? defaultCanonicalRequest(for: request)
     }
     
     internal override class func requestIsCacheEquivalent(_ a: URLRequest, to b: URLRequest) -> Bool {
         if let handler = handler(for: a) {
-            return handler.request.requestIsCacheEquivalent(a, b)
+            return handler.request.filter.requestIsCacheEquivalent(a, b)
         }
         if let handler = handler(for: b) {
-            return handler.request.requestIsCacheEquivalent(a, b)
+            return handler.request.filter.requestIsCacheEquivalent(a, b)
         }
         return defaultRequestIsCacheEquivalent(a: a, b: b)
     }
