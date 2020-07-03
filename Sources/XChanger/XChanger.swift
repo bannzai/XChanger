@@ -24,10 +24,10 @@ public class XChanger {
         }
         method_exchangeImplementations(originalMethod, swizzledMethod)
     }
+
     public static func add(_ handlers: XChanger...) {
         Pool.shared.pool.append(contentsOf: handlers)
     }
-    
     public static func exchange() -> RequestBuilder {
         XChanger()
     }
@@ -35,6 +35,12 @@ public class XChanger {
     internal var url: URL!
     internal var request: Request!
     internal var response: HTTPResponse!
+    
+    internal var urlRequest: URLRequest {
+        var request = URLRequest.init(url: url)
+        request.httpMethod = self.request.httpMethod
+        return request
+    }
 }
 
 extension XChanger: Builder {
