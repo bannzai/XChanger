@@ -15,12 +15,12 @@ final class XChangerTests: XCTestCase {
             XChanger.register()
             defer { XChanger.unregister() }
             
-            let expect = expectation(description: #function)
             let json = try! JSONEncoder().encode(Coder(id: 10, name: "bannzai"))
             XChanger.add(
                 XChanger.exchange().request(url: "/").response(data: json, statusCode: 200)
             )
             
+            let expect = expectation(description: #function)
             let request = URLRequest(url: URL(string: "/")!)
             let session = URLSession(configuration: URLSessionConfiguration.default)
             session.dataTask(with: request) { data, response, error in
@@ -41,11 +41,11 @@ final class XChangerTests: XCTestCase {
             XChanger.register()
             defer { XChanger.unregister() }
             
-            let expect = expectation(description: #function)
             XChanger.add(
                 XChanger.exchange().request(url: "/").response(error: ResponseError(error: MyError()))
             )
             
+            let expect = expectation(description: #function)
             let request = URLRequest(url: URL(string: "/")!)
             let session = URLSession(configuration: URLSessionConfiguration.default)
             session.dataTask(with: request) { data, response, error in
