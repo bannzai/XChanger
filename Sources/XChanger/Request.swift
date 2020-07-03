@@ -25,6 +25,9 @@ public struct RequestFilter {
         self.requestIsCacheEquivalent = requestIsCacheEquivalent ?? defaultRequestIsCacheEquivalent(a:b:)
     }
     
+    public func callAsFunction(_ a: URLRequest, _ b: URLRequest) -> Bool {
+        filter(a, b)
+    }
 }
 
 public struct HTTPRequest {
