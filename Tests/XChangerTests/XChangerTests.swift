@@ -16,10 +16,8 @@ final class XChangerTests: XCTestCase {
             defer { XChanger.unregister() }
             
             let json = try! JSONEncoder().encode(User(id: 10, name: "bannzai"))
-            XChanger.add(
-                XChanger.exchange().request(url: "/").response(data: json, statusCode: 200)
-            )
-            
+            XChanger.exchange().request(url: "/").response(data: json, statusCode: 200).enable()
+
             let expect = expectation(description: #function)
             let request = URLRequest(url: URL(string: "/")!)
             let session = URLSession(configuration: URLSessionConfiguration.default)
@@ -41,10 +39,8 @@ final class XChangerTests: XCTestCase {
             XChanger.register()
             defer { XChanger.unregister() }
             
-            XChanger.add(
-                XChanger.exchange().request(url: "/").response(error: ResponseError(error: MyError()))
-            )
-            
+            XChanger.exchange().request(url: "/").response(error: ResponseError(error: MyError())).enable()
+
             let expect = expectation(description: #function)
             let request = URLRequest(url: URL(string: "/")!)
             let session = URLSession(configuration: URLSessionConfiguration.default)
@@ -65,11 +61,10 @@ final class XChangerTests: XCTestCase {
             
             let json1 = try! JSONEncoder().encode(User(id: 10, name: "bannzai"))
             let json2 = try! JSONEncoder().encode(User(id: 100, name: "kingkong999"))
-            XChanger.add(
-                XChanger.exchange().request(url: "http://com.bannzai.xchanger/v1/user/10").response(data: json1, statusCode: 200),
-                XChanger.exchange().request(url: "http://com.bannzai.xchanger/v1/user/100").response(data: json2, statusCode: 200)
-            )
             
+            XChanger.exchange().request(url: "http://com.bannzai.xchanger/v1/user/10").response(data: json1, statusCode: 200).enable()
+            XChanger.exchange().request(url: "http://com.bannzai.xchanger/v1/user/100").response(data: json2, statusCode: 200).enable()
+
             bannzai: do {
                 let expect = expectation(description: #function)
                 let request = URLRequest(url: URL(string: "http://com.bannzai.xchanger/v1/user/10")!)
