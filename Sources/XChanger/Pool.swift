@@ -6,6 +6,6 @@ internal struct Pool {
     internal var pool: [XChanger] = []
     
     internal func extract(request: URLRequest) -> XChanger? {
-        pool.last { $0.request.filter($0.urlRequest, request) }
+        pool.last { $0.requestFilter?($0.urlRequest, request) ?? false }
     }
 }
