@@ -25,9 +25,6 @@ public class XChanger {
         method_exchangeImplementations(originalMethod, swizzledMethod)
     }
 
-    public static func add(_ handlers: XChanger...) {
-        Pool.shared.pool.append(contentsOf: handlers)
-    }
     public static func exchange() -> RequestBuilder {
         XChanger()
     }
