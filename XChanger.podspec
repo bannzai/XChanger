@@ -40,7 +40,7 @@ Define exchange.
 ```swift
 let url = "https://exmaple.com/v1/users/10"
 let json = try! JSONEncoder().encode(User(id: 10, name: "bannzai"))
-XChanger.exchange().request(url: url).response(data: json, statusCode: 200)
+XChanger.exchange().request(url: url).response(data: json, statusCode: 200).enable()
 ```
 
 Request actually with URLSession.
