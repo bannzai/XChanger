@@ -30,12 +30,14 @@ public class XChanger {
     }
     
     internal var url: URL!
-    internal var request: HTTPRequest!
+    internal var request: Request!
     internal var response: HTTPResponse!
     
     internal var urlRequest: URLRequest {
         var request = URLRequest.init(url: url)
-        request.httpMethod = self.request.httpMethod
+        if let httpRequest = self.request as? HTTPRequest {
+            request.httpMethod = httpRequest.httpMethod
+        }
         return request
     }
 }
