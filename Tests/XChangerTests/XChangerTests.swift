@@ -25,6 +25,7 @@ final class XChangerTests: XCTestCase {
             
             let json = try! JSONEncoder().encode(User(id: 10, name: "bannzai"))
             XChanger.exchange().request(url: "/").response(data: json, statusCode: 200).enable()
+            defer { Pool.shared.pool.removeAll() }
 
             let expect = expectation(description: #function)
             let request = URLRequest(url: URL(string: "/")!)
@@ -48,6 +49,7 @@ final class XChangerTests: XCTestCase {
             defer { XChanger.unregister() }
             
             XChanger.exchange().request(url: "/").response(error: ResponseError(error: MyError())).enable()
+            defer { Pool.shared.pool.removeAll() }
 
             let expect = expectation(description: #function)
             let request = URLRequest(url: URL(string: "/")!)
@@ -72,6 +74,7 @@ final class XChangerTests: XCTestCase {
             
             XChanger.exchange().request(url: "http://com.bannzai.xchanger/v1/user/10").response(data: json1, statusCode: 200).enable()
             XChanger.exchange().request(url: "http://com.bannzai.xchanger/v1/user/100").response(data: json2, statusCode: 200).enable()
+            defer { Pool.shared.pool.removeAll() }
 
             bannzai: do {
                 let expect = expectation(description: #function)
