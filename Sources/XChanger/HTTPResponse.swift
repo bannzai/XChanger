@@ -2,14 +2,6 @@ import Foundation
 
 public var defaultCacheStoragePolicy: URLCache.StoragePolicy = URLCache.StoragePolicy.allowed
 
-public struct ResponseError: Swift.Error {
-    let error: Error
-    let response: URLResponse?
-    public init(error: Error, response: URLResponse? = nil) {
-        self.error = error
-        self.response = response
-    }
-}
 public struct HTTPResponse {
     internal let result: Result<(data: Data, response: HTTPURLResponse), ResponseError>
     internal let cacheStoragePolicty: URLCache.StoragePolicy
