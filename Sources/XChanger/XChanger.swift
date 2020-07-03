@@ -75,9 +75,17 @@ extension XChanger: Builder {
         return self
     }
     
-    public func response(error: ResponseError) -> XChanger {
+    public func response(error: ResponseError) -> EnableBuilder {
         self.response = HTTPResponse(error: error)
         return self
+    }
+    
+    public func enable() {
+        Pool.shared.pool.append(self)
+    }
+    
+    public func disable() {
+        _ = Pool.shared.pool.lastIndex(where: { $0 === self}).flatMap(Int.init).map { Pool.shared.pool.remove(at: $0) }
     }
 }
 

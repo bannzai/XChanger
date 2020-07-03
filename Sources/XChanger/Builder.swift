@@ -22,7 +22,12 @@ extension HTTPResponseBuilder {
 }
 
 public protocol ResponseErrorBuilder {
-    func response(error: ResponseError) -> XChanger
+    func response(error: ResponseError) -> EnableBuilder
 }
 
-internal typealias Builder = RequestBuilder & HTTPResponseBuilder & ResponseErrorBuilder
+public protocol EnableBuilder {
+    func enable()
+    func disable()
+}
+
+internal typealias Builder = RequestBuilder & HTTPResponseBuilder & ResponseErrorBuilder & EnableBuilder
