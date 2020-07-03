@@ -1,6 +1,11 @@
 import Foundation
 
-public protocol RequestBuilder {
+public protocol EnableBuilder {
+    func enable()
+    func disable()
+}
+
+public protocol RequestBuilder: EnableBuilder {
     func request(url: URLConvertible, http request: Request) -> HTTPResponseBuilder
 }
 
@@ -10,7 +15,7 @@ extension RequestBuilder {
     }
 }
 
-public protocol HTTPResponseBuilder: ResponseErrorBuilder {
+public protocol HTTPResponseBuilder: ResponseErrorBuilder, EnableBuilder {
     func response(response: HTTPResponse) -> XChanger
     func response(data: Data, statusCode: Int, httpVersion: String?, headers: [String: String]?, cacheStoragePolicy: URLCache.StoragePolicy) -> XChanger
 }
@@ -22,7 +27,7 @@ extension HTTPResponseBuilder {
 }
 
 public protocol ResponseErrorBuilder {
-    func response(error: ResponseError) -> XChanger
+    func response(error: ResponseError) -> EnableBuilder
 }
 
-internal typealias Builder = RequestBuilder & HTTPResponseBuilder & ResponseErrorBuilder
+internal typealias Builder = RequestBuilder & HTTPResponseBuilder & ResponseErrorBuilder & EnableBuilder

@@ -16,7 +16,7 @@ Pod::Spec.new do |spec|
   #
 
   spec.name         = "XChanger"
-  spec.version      = "0.0.2"
+  spec.version      = "0.0.3"
   spec.summary      = "XChanger can exchange to behavior for URL request and response"
 
   # This description is used to generate tags and improve search results.
@@ -40,7 +40,7 @@ Define exchange.
 ```swift
 let url = "https://exmaple.com/v1/users/10"
 let json = try! JSONEncoder().encode(User(id: 10, name: "bannzai"))
-XChanger.exchange().request(url: url).response(data: json, statusCode: 200)
+XChanger.exchange().request(url: url).response(data: json, statusCode: 200).enable()
 ```
 
 Request actually with URLSession.

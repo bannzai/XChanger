@@ -25,9 +25,6 @@ public class XChanger {
         method_exchangeImplementations(originalMethod, swizzledMethod)
     }
 
-    public static func add(_ handlers: XChanger...) {
-        Pool.shared.pool.append(contentsOf: handlers)
-    }
     public static func exchange() -> RequestBuilder {
         XChanger()
     }
@@ -75,9 +72,17 @@ extension XChanger: Builder {
         return self
     }
     
-    public func response(error: ResponseError) -> XChanger {
+    public func response(error: ResponseError) -> EnableBuilder {
         self.response = HTTPResponse(error: error)
         return self
+    }
+    
+    public func enable() {
+        Pool.shared.pool.append(self)
+    }
+    
+    public func disable() {
+        _ = Pool.shared.pool.lastIndex(where: { $0 === self}).flatMap(Int.init).map { Pool.shared.pool.remove(at: $0) }
     }
 }
 

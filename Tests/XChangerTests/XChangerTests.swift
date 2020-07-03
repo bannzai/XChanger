@@ -10,16 +10,23 @@ struct MyError: Error {
     
 }
 final class XChangerTests: XCTestCase {
+    func testForEnableBuilder() {
+        let initial = Pool.shared.pool.count
+        let exchanger = XChanger.exchange()
+        exchanger.enable()
+        XCTAssertEqual(initial + 1, Pool.shared.pool.count)
+        exchanger.disable()
+        XCTAssertEqual(initial, Pool.shared.pool.count)
+    }
     func testExample() {
         XCTContext.runActivity(named: "Success reponse pattern") { (_) in
             XChanger.register()
             defer { XChanger.unregister() }
             
             let json = try! JSONEncoder().encode(User(id: 10, name: "bannzai"))
-            XChanger.add(
-                XChanger.exchange().request(url: "/").response(data: json, statusCode: 200)
-            )
-            
+            XChanger.exchange().request(url: "/").response(data: json, statusCode: 200).enable()
+            defer { Pool.shared.pool.removeAll() }
+
             let expect = expectation(description: #function)
             let request = URLRequest(url: URL(string: "/")!)
             let session = URLSession(configuration: URLSessionConfiguration.default)
@@ -41,10 +48,9 @@ final class XChangerTests: XCTestCase {
             XChanger.register()
             defer { XChanger.unregister() }
             
-            XChanger.add(
-                XChanger.exchange().request(url: "/").response(error: ResponseError(error: MyError()))
-            )
-            
+            XChanger.exchange().request(url: "/").response(error: ResponseError(error: MyError())).enable()
+            defer { Pool.shared.pool.removeAll() }
+
             let expect = expectation(description: #function)
             let request = URLRequest(url: URL(string: "/")!)
             let session = URLSession(configuration: URLSessionConfiguration.default)
@@ -65,11 +71,11 @@ final class XChangerTests: XCTestCase {
             
             let json1 = try! JSONEncoder().encode(User(id: 10, name: "bannzai"))
             let json2 = try! JSONEncoder().encode(User(id: 100, name: "kingkong999"))
-            XChanger.add(
-                XChanger.exchange().request(url: "http://com.bannzai.xchanger/v1/user/10").response(data: json1, statusCode: 200),
-                XChanger.exchange().request(url: "http://com.bannzai.xchanger/v1/user/100").response(data: json2, statusCode: 200)
-            )
             
+            XChanger.exchange().request(url: "http://com.bannzai.xchanger/v1/user/10").response(data: json1, statusCode: 200).enable()
+            XChanger.exchange().request(url: "http://com.bannzai.xchanger/v1/user/100").response(data: json2, statusCode: 200).enable()
+            defer { Pool.shared.pool.removeAll() }
+
             bannzai: do {
                 let expect = expectation(description: #function)
                 let request = URLRequest(url: URL(string: "http://com.bannzai.xchanger/v1/user/10")!)
