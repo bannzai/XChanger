@@ -1,7 +1,7 @@
 import XCTest
 @testable import XChanger
 
-struct Coder: Codable, Equatable {
+struct User: Codable, Equatable {
     let id: Int
     let name: String
 }
@@ -15,12 +15,12 @@ final class XChangerTests: XCTestCase {
             XChanger.register()
             defer { XChanger.unregister() }
             
-            let expect = expectation(description: #function)
-            let json = try! JSONEncoder().encode(Coder(id: 10, name: "bannzai"))
+            let json = try! JSONEncoder().encode(User(id: 10, name: "bannzai"))
             XChanger.add(
                 XChanger.exchange().request(url: "/").response(data: json, statusCode: 200)
             )
             
+            let expect = expectation(description: #function)
             let request = URLRequest(url: URL(string: "/")!)
             let session = URLSession(configuration: URLSessionConfiguration.default)
             session.dataTask(with: request) { data, response, error in
@@ -29,8 +29,8 @@ final class XChangerTests: XCTestCase {
                 }
                 XCTAssertEqual(httpResponse.statusCode, 200)
                 
-                let decoded = try! JSONDecoder().decode(Coder.self, from: data!)
-                XCTAssertEqual(decoded, Coder(id: 10, name: "bannzai"))
+                let decoded = try! JSONDecoder().decode(User.self, from: data!)
+                XCTAssertEqual(decoded, User(id: 10, name: "bannzai"))
                 
                 expect.fulfill()
             }.resume()
@@ -41,11 +41,11 @@ final class XChangerTests: XCTestCase {
             XChanger.register()
             defer { XChanger.unregister() }
             
-            let expect = expectation(description: #function)
             XChanger.add(
                 XChanger.exchange().request(url: "/").response(error: ResponseError(error: MyError()))
             )
             
+            let expect = expectation(description: #function)
             let request = URLRequest(url: URL(string: "/")!)
             let session = URLSession(configuration: URLSessionConfiguration.default)
             session.dataTask(with: request) { data, response, error in
@@ -58,6 +58,52 @@ final class XChangerTests: XCTestCase {
             }.resume()
             
             wait(for: [expect], timeout: 1)
+        }
+        XCTContext.runActivity(named: "Plural register pattern") { (_) in
+            XChanger.register()
+            defer { XChanger.unregister() }
+            
+            let json1 = try! JSONEncoder().encode(User(id: 10, name: "bannzai"))
+            let json2 = try! JSONEncoder().encode(User(id: 100, name: "kingkong999"))
+            XChanger.add(
+                XChanger.exchange().request(url: "http://com.bannzai.xchanger/v1/user/10").response(data: json1, statusCode: 200),
+                XChanger.exchange().request(url: "http://com.bannzai.xchanger/v1/user/100").response(data: json2, statusCode: 200)
+            )
+            
+            bannzai: do {
+                let expect = expectation(description: #function)
+                let request = URLRequest(url: URL(string: "http://com.bannzai.xchanger/v1/user/10")!)
+                let session = URLSession(configuration: URLSessionConfiguration.default)
+                session.dataTask(with: request) { data, response, error in
+                    guard let httpResponse = response as? HTTPURLResponse else {
+                        return XCTFail("Unexpected response type of HTTPURLResponse")
+                    }
+                    XCTAssertEqual(httpResponse.statusCode, 200)
+                    
+                    let decoded = try! JSONDecoder().decode(User.self, from: data!)
+                    XCTAssertEqual(decoded, User(id: 10, name: "bannzai"))
+                    
+                    expect.fulfill()
+                }.resume()
+                wait(for: [expect], timeout: 1)
+            }
+            kingkong999: do {
+                let expect = expectation(description: #function)
+                let request = URLRequest(url: URL(string: "http://com.bannzai.xchanger/v1/user/100")!)
+                let session = URLSession(configuration: URLSessionConfiguration.default)
+                session.dataTask(with: request) { data, response, error in
+                    guard let httpResponse = response as? HTTPURLResponse else {
+                        return XCTFail("Unexpected response type of HTTPURLResponse")
+                    }
+                    XCTAssertEqual(httpResponse.statusCode, 200)
+                    
+                    let decoded = try! JSONDecoder().decode(User.self, from: data!)
+                    XCTAssertEqual(decoded, User(id: 100, name: "kingkong999"))
+                    
+                    expect.fulfill()
+                }.resume()
+                wait(for: [expect], timeout: 1)
+            }
         }
     }
 }
