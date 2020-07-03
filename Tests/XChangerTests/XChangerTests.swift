@@ -10,6 +10,14 @@ struct MyError: Error {
     
 }
 final class XChangerTests: XCTestCase {
+    func testForEnableBuilder() {
+        let initial = Pool.shared.pool.count
+        let exchanger = XChanger.exchange()
+        exchanger.enable()
+        XCTAssertEqual(initial + 1, Pool.shared.pool.count)
+        exchanger.disable()
+        XCTAssertEqual(initial, Pool.shared.pool.count)
+    }
     func testExample() {
         XCTContext.runActivity(named: "Success reponse pattern") { (_) in
             XChanger.register()
