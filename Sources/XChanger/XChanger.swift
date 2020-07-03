@@ -30,25 +30,31 @@ public class XChanger {
     }
     
     internal var url: URL!
-    internal var request: Request!
-    internal var response: HTTPResponse!
+    internal var http: HTTP?
+    
+    var requestFilter: RequestFilter? {
+        http?.request?.filter
+    }
     
     internal var urlRequest: URLRequest {
         var request = URLRequest.init(url: url)
-        request.httpMethod = self.request.httpMethod
+        if let http = http {
+            request.httpMethod = http.request?.httpMethod
+        }
         return request
     }
 }
 
 extension XChanger: Builder {
-    public func request(url: URLConvertible, http request: Request) -> HTTPResponseBuilder {
+    public func request(url: URLConvertible, http request: HTTP.Request) -> HTTPResponseBuilder {
         self.url = url.url
-        self.request = request
+        self.http = HTTP()
+        self.http?.request = request
         return self
     }
     
-    public func response(response: HTTPResponse) -> XChanger {
-        self.response = response
+    public func response(response: HTTP.Response) -> XChanger {
+        self.http?.response = response
         return self
     }
     
@@ -65,7 +71,7 @@ extension XChanger: Builder {
             httpVersion: httpVersion,
             headerFields: headers
         )!
-        self.response = HTTPResponse(
+        self.http?.response = HTTP.Response(
             success: (data: data, response: httpURLResponse),
             cacheStoragePolicty: cacheStoragePolicy
         )
@@ -73,7 +79,7 @@ extension XChanger: Builder {
     }
     
     public func response(error: ResponseError) -> EnableBuilder {
-        self.response = HTTPResponse(error: error)
+        self.http?.response = HTTP.Response(error: error)
         return self
     }
     

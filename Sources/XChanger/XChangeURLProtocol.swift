@@ -3,21 +3,22 @@ import Foundation
 internal class XChangeURLProtocol: URLProtocol {
 
     internal override class func canInit(with request: URLRequest) -> Bool {
-        handler(for: request)?.request.canInit(request) ?? defaultCanInit(with: request)
+        handler(for: request)?.requestFilter?.canInit(request) ?? defaultCanInit(with: request)
     }
     
     internal override class func canonicalRequest(for request: URLRequest) -> URLRequest {
-        handler(for: request)?.request.canonicalRequest(request) ?? defaultCanonicalRequest(for: request)
+        handler(for: request)?.requestFilter?.canonicalRequest(request) ?? defaultCanonicalRequest(for: request)
     }
     
     internal override class func requestIsCacheEquivalent(_ a: URLRequest, to b: URLRequest) -> Bool {
+        let defaultValue = defaultRequestIsCacheEquivalent(a: a, b: b)
         if let handler = handler(for: a) {
-            return handler.request.requestIsCacheEquivalent(a, b)
+            return handler.requestFilter?.requestIsCacheEquivalent(a, b) ?? defaultValue
         }
         if let handler = handler(for: b) {
-            return handler.request.requestIsCacheEquivalent(a, b)
+            return handler.requestFilter?.requestIsCacheEquivalent(a, b) ?? defaultValue
         }
-        return defaultRequestIsCacheEquivalent(a: a, b: b)
+        return defaultValue
     }
     
     internal override func startLoading() {
@@ -27,13 +28,19 @@ internal class XChangeURLProtocol: URLProtocol {
         defer {
             client?.urlProtocolDidFinishLoading(self)
         }
-        switch handler.response.result {
-        case .success(let response):
-            client?.urlProtocol(self, didReceive: response.1, cacheStoragePolicy: handler.response.cacheStoragePolicty)
-            client?.urlProtocol(self, didLoad: response.0)
+        guard let http = handler.http else {
+            fatalError("Current support only http protool")
+        }
+        guard let response = http.response else {
+            fatalError("HTTP Response is not allow nil")
+        }
+        switch response.result {
+        case .success(let result):
+            client?.urlProtocol(self, didReceive: result.1, cacheStoragePolicy: response.cacheStoragePolicty)
+            client?.urlProtocol(self, didLoad: result.0)
         case .failure(let error):
-            if let response = error.response {
-                client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: handler.response.cacheStoragePolicty)
+            if let errorResponse = error.response {
+                client?.urlProtocol(self, didReceive: errorResponse, cacheStoragePolicy: response.cacheStoragePolicty)
             }
             client?.urlProtocol(self, didFailWithError: error.error)
         }

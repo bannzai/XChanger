@@ -6,17 +6,17 @@ public protocol EnableBuilder {
 }
 
 public protocol RequestBuilder: EnableBuilder {
-    func request(url: URLConvertible, http request: Request) -> HTTPResponseBuilder
+    func request(url: URLConvertible, http request: HTTP.Request) -> HTTPResponseBuilder
 }
 
 extension RequestBuilder {
-    public func request(url: URLConvertible, http request: Request = .init()) -> HTTPResponseBuilder {
+    public func request(url: URLConvertible, http request: HTTP.Request = .init()) -> HTTPResponseBuilder {
         self.request(url: url, http: request)
     }
 }
 
 public protocol HTTPResponseBuilder: ResponseErrorBuilder, EnableBuilder {
-    func response(response: HTTPResponse) -> XChanger
+    func response(response: HTTP.Response) -> XChanger
     func response(data: Data, statusCode: Int, httpVersion: String?, headers: [String: String]?, cacheStoragePolicy: URLCache.StoragePolicy) -> XChanger
 }
 
