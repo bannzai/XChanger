@@ -21,7 +21,7 @@ public protocol HTTPResponseBuilder: ResponseErrorBuilder, EnableBuilder {
 }
 
 extension HTTPResponseBuilder {
-    func response(data: Data, statusCode: Int, httpVersion: String? = nil, headers: [String: String]? = nil, cacheStoragePolicy: URLCache.StoragePolicy = defaultCacheStoragePolicy) -> XChanger {
+    public func response(data: Data, statusCode: Int, httpVersion: String? = nil, headers: [String: String]? = nil, cacheStoragePolicy: URLCache.StoragePolicy = defaultCacheStoragePolicy) -> XChanger {
         response(data: data, statusCode: statusCode, httpVersion: httpVersion, headers: headers, cacheStoragePolicy: cacheStoragePolicy)
     }
 }
