@@ -19,7 +19,7 @@ final class XChangerTests: XCTestCase {
         XCTAssertEqual(initial, Pool.shared.pool.count)
     }
     func testExample() {
-        XCTContext.runActivity(named: "Success reponse pattern") { (_) in
+        XCTContext.runActivity(named: "Success response pattern") { (_) in
             XChanger.register()
             defer { XChanger.unregister() }
             
@@ -44,7 +44,7 @@ final class XChangerTests: XCTestCase {
             
             wait(for: [expect], timeout: 1)
         }
-        XCTContext.runActivity(named: "Failure reponse pattern") { (_) in
+        XCTContext.runActivity(named: "Failure response pattern") { (_) in
             XChanger.register()
             defer { XChanger.unregister() }
             
