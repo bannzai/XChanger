@@ -3,9 +3,6 @@ import Foundation
 internal func defaultRequestFilter(a: URLRequest, b: URLRequest) -> Bool {
     a.httpMethod == b.httpMethod && a.url?.host == b.url?.host && a.url?.path == b.url?.path
 }
-internal func defaultCanInit(with request: URLRequest) -> Bool { false }
-internal func defaultCanonicalRequest(for request: URLRequest) -> URLRequest { request }
-internal func defaultRequestIsCacheEquivalent(a: URLRequest, b: URLRequest) -> Bool { false }
 
 public struct RequestFilter {
     internal let filter: ((URLRequest, URLRequest) -> Bool)
