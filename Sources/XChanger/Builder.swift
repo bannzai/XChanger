@@ -1,8 +1,7 @@
 import Foundation
 
-public typealias DisableClosure = () -> Void
 public protocol EnableBuilder {
-    @discardableResult func enable() -> DisableClosure
+    func enable()
     func disable()
 }
 

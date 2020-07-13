@@ -15,7 +15,7 @@ public class XChanger {
     }
     public static func unregister() {
         URLProtocol.unregisterClass(XChangeURLProtocol.self)
-
+        
         guard let originalMethod = class_getClassMethod(URLSessionConfiguration.self, #selector(getter: URLSessionConfiguration.exchangerConfiguration)) else {
             fatalError("Unexpected pattern for get method implementation of URLSessionConfiguration.exchangerConfiguration in reverse")
         }
@@ -86,9 +86,8 @@ extension XChanger: Builder {
         return self
     }
     
-    @discardableResult public func enable() -> DisableClosure {
+    public func enable() {
         Pool.shared.pool.append(self)
-        return { self.disable() }
     }
     
     public func disable() {
