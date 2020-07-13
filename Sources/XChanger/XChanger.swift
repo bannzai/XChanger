@@ -24,6 +24,9 @@ public class XChanger {
         }
         method_exchangeImplementations(originalMethod, swizzledMethod)
     }
+    public static func clearPool() {
+        Pool.shared.pool.removeAll()
+    }
 
     public static func exchange() -> RequestBuilder {
         XChanger()
