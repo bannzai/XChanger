@@ -18,6 +18,13 @@ final class XChangerTests: XCTestCase {
         exchanger.disable()
         XCTAssertEqual(initial, Pool.shared.pool.count)
     }
+    func testClearPool() {
+        let initial = Pool.shared.pool.count
+        XChanger.exchange().enable()
+        XCTAssertEqual(initial + 1, Pool.shared.pool.count)
+        XChanger.clearPool()
+        XCTAssertEqual(initial, Pool.shared.pool.count)
+    }
     func testExample() {
         XCTContext.runActivity(named: "Success response pattern") { (_) in
             XChanger.register()
