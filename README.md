@@ -11,7 +11,7 @@ Then, passing response mock data with URL request as a key.
 Here is the example for the URL `https://exmaple.com/v1/users/10`, and will return the 200 response with the body `{"id": 10, name:"bannzai"}`. 
 
 ```swift
-struct User {
+struct User: Codable {
   var id: Int
   var name: String
 }
